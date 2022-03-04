@@ -3,6 +3,7 @@ import time
 
 import numpy
 import numpy as np
+from numba import jit
 
 """
 ici on compte les demandes
@@ -17,10 +18,10 @@ si y'a plus de demandes
       sinon, on passe à la ligne suivante
 """
 
-n = 6
+n = 4
 H = n
 W = n
-SOLUTIONS_TROUVEES = []
+SOLUTIONS_TROUVEES = numpy.empty(50, dtype=object)
 
 
 def generate_sol_init(n):
@@ -59,9 +60,9 @@ class TABLEAU():
         return self.__tableau.copy()
 
     def compter_demandes_pour_ligne(self, y):
-        demandes_sur_ligne = []
+        demandes_sur_ligne = numpy.array([])
         for i in range(0, n):
-            demandes_sur_ligne.append(self.compter_demandes_pour_case(i, y - 1))
+            numpy.append(demandes_sur_ligne,self.compter_demandes_pour_case(i, y - 1))
         return demandes_sur_ligne
 
     def compter_demandes_pour_case(self, x, y):
@@ -90,15 +91,15 @@ class TABLEAU():
         return (total % 2 == 0) * 1
 
 
-
-def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit_clique):
-    if tableau.get(1, 1) == 1 and tableau.get(0, 1) == 0 and tableau.get(0, 2) == 0 and tableau.get(0,3)==0 and tableau.get(0,4)==0:
+@jit()
+def algo(tableau, indice_ligne_en_cours, nombre_de_resolus, dernier_endroit_clique):
+    if tableau.get(1, 1) == 1 and tableau.get(0, 1) == 0 and tableau.get(0, 2) == 0 and tableau.get(0, 3) == 0 \
+            and tableau.get(0, 4) == 0:
         # print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
-        tableau.print_tab()
-        print("\n")
+        # tableau.print_tab()
+        # print("\n")
         time.sleep(0.1)
     # print("\n", nom)
-
 
     # ici on compte les demandes pour la ligne au dessus
     demandes_sur_cette_ligne = tableau.compter_demandes_pour_ligne(indice_ligne_en_cours)
@@ -125,8 +126,7 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
                                                                         indice_ligne_en_cours) == 0:  # todo @andre j'ai essayé ca
                         tableau_duplique = TABLEAU(n, tableau.copy_tab())
                         tableau_duplique.set(i, indice_ligne_en_cours)
-                        algo(tableau_duplique, indice_ligne_en_cours, nom + nom[-2:], nombre_de_resolus,
-                             dernier_endroit_clique)
+                        algo(tableau_duplique, indice_ligne_en_cours, nombre_de_resolus, dernier_endroit_clique)
 
     else:  # si y'a plus de demandes
         # si on est à la dernière ligne
@@ -138,29 +138,32 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
                 return
             else:
                 print("RESOLVAAaaaaaaaaaaaaaaaAAAAABLE")
-                SOLUTIONS_TROUVEES.append(tableau)
+                numpy.append(SOLUTIONS_TROUVEES,tableau)
                 nombre_de_resolus += 1
                 return
         else:
             # sinon, on passe à la ligne suivante
-            algo(tableau, indice_ligne_en_cours + 1, nom[:-1] + str(indice_ligne_en_cours), nombre_de_resolus,
-                 dernier_endroit_clique)
+            algo(tableau, indice_ligne_en_cours + 1, nombre_de_resolus, dernier_endroit_clique)
     # print("nombre_de_resolus = ", nombre_de_resolus)
 
 
 # ici on va lancer l'algo sur les x possibilités générées par generate_sol_init()
 solutions_init = generate_sol_init(n)
 start = time.time()
-
+# threads = []
 for solution in solutions_init:
-    solution = [1, 0, 0, 0, 0, 1]
+    # solution = [1, 0, 0, 0, 0, 1]
     first_tableau = TABLEAU(n)
     for x in range(n):
         first_tableau.set(x, 0, solution[x])
 
     # on lance l'algo sur la solution
-    algo(first_tableau, 1, "A1", 0, None)
-    break
+    # t1 = threading.Thread(target=algo, args=(first_tableau, 1, "A1", 0, None))
+    # t1.start()
+    algo(first_tableau, 1, 0, None)
+    # threads.append(t1)
+    print("launched")
+
 # break
 
 # first_tableau = TABLEAU(n)
@@ -180,6 +183,11 @@ for solution in solutions_init:
 # first_tableau.print_tab()
 # print(first_tableau.compter_demandes_pour_ligne(4))
 
+# # attendre que t1 soit exécuté
+# for th in threads:
+#     th.join()
+
+# tout a été exec
 end = time.time()
 
 # elimination des doublons
