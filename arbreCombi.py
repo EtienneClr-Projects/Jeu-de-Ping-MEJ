@@ -17,7 +17,7 @@ si y'a plus de demandes
       sinon, on passe à la ligne suivante
 """
 
-n = 4
+n = 6
 H = n
 W = n
 SOLUTIONS_TROUVEES = []
@@ -90,11 +90,15 @@ class TABLEAU():
         return (total % 2 == 0) * 1
 
 
-def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit_clique):
-    print("\n", nom)
-    tableau.print_tab()
 
-    time.sleep(1)
+def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit_clique):
+    if tableau.get(1, 1) == 1 and tableau.get(0, 1) == 0 and tableau.get(0, 2) == 0 and tableau.get(0,3)==0 and tableau.get(0,4)==0:
+        # print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+        tableau.print_tab()
+        print("\n")
+        time.sleep(0.1)
+    # print("\n", nom)
+
 
     # ici on compte les demandes pour la ligne au dessus
     demandes_sur_cette_ligne = tableau.compter_demandes_pour_ligne(indice_ligne_en_cours)
@@ -133,7 +137,7 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
                 # print("NON RESOLVABLE 1")
                 return
             else:
-                # print("RESOLVABLE")
+                print("RESOLVAAaaaaaaaaaaaaaaaAAAAABLE")
                 SOLUTIONS_TROUVEES.append(tableau)
                 nombre_de_resolus += 1
                 return
@@ -146,16 +150,17 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
 
 # ici on va lancer l'algo sur les x possibilités générées par generate_sol_init()
 solutions_init = generate_sol_init(n)
-start =time.time()
+start = time.time()
 
 for solution in solutions_init:
-    # solution = [0, 1, 1, 1]
+    solution = [1, 0, 0, 0, 0, 1]
     first_tableau = TABLEAU(n)
     for x in range(n):
         first_tableau.set(x, 0, solution[x])
 
     # on lance l'algo sur la solution
     algo(first_tableau, 1, "A1", 0, None)
+    break
 # break
 
 # first_tableau = TABLEAU(n)
@@ -175,7 +180,7 @@ for solution in solutions_init:
 # first_tableau.print_tab()
 # print(first_tableau.compter_demandes_pour_ligne(4))
 
-end =time.time()
+end = time.time()
 
 # elimination des doublons
 SOLUTIONS_UNIQUES = []
@@ -194,4 +199,4 @@ for sol in SOLUTIONS_UNIQUES:
     print(sol[1:n + 1, 1:n + 1])
 
 print(len(SOLUTIONS_UNIQUES), "solutions")
-print("temps de calcul :",end-start)
+print("temps de calcul :", end - start)
