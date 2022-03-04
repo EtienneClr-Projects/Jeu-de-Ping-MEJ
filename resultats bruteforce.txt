@@ -1,0 +1,8 @@
+Code en C 14/12/21: test de toutes les solutions sans printf pour tableau de 5x5 : 12.387000s, 4.877000s avec des instructions de compilation
+vs python, 1107.9s (code python avec pb de ram qui augmente réglé (640Mo vs plusieurs Go)
+
+
+
+6x6:21h
+7x7: 211 ans 
+8x8:106 millions d’années
