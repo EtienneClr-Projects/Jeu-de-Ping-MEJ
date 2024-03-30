@@ -17,7 +17,7 @@ si y'a plus de demandes
       sinon, on passe à la ligne suivante
 """
 
-n = 4
+n = 6
 H = n
 W = n
 SOLUTIONS_TROUVEES = []
@@ -74,6 +74,12 @@ class TABLEAU():
         return total
 
     def verif_impair_cases_autour(self, x, y):
+        """
+        retourne 1 si le nombre de cases cliquées autour est
+        :param x:
+        :param y:
+        :return:
+        """
         x += 1  # pour se replacer par rapport aux bordures
         y += 1
         total = 0
@@ -91,18 +97,20 @@ class TABLEAU():
 
 
 def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit_clique):
-    print("\n", nom)
-    tableau.print_tab()
-
-    time.sleep(1)
+    # if tableau.get(1, 1) == 1 and tableau.get(0, 1) == 0 and tableau.get(0, 2) == 0 and tableau.get(0,3)==0 and tableau.get(0,4)==0:
+    # print("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO")
+    # tableau.print_tab()
+    # print("\n")
+    # time.sleep(0.1)
+    # print("\n", nom)
 
     # ici on compte les demandes pour la ligne au dessus
     demandes_sur_cette_ligne = tableau.compter_demandes_pour_ligne(indice_ligne_en_cours)
     # print(demandes_sur_cette_ligne)
 
     # si y'a des demandes
-    if sum(demandes_sur_cette_ligne):
-        val_max = max(demandes_sur_cette_ligne)
+    val_max = max(demandes_sur_cette_ligne)
+    if val_max > 0:
         # si on a déjà cliqué à tous les endroits où y'a des demandes, on s'arrête
         somme = 0
         for i in range(n):
@@ -112,13 +120,16 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
         else:
             # si on a une demande maximale unique on clique dessus
             nb_demandes_max = demandes_sur_cette_ligne.count(val_max)
-            if nb_demandes_max == 0:
+            if nb_demandes_max == 1: #todo c'était 0 avant bizarre ? mais y'a un bogue maintenant
                 tableau.set(demandes_sur_cette_ligne.index(val_max), indice_ligne_en_cours)
+                algo(tableau, indice_ligne_en_cours, nom[:-1] + str(indice_ligne_en_cours), nombre_de_resolus,
+                     dernier_endroit_clique)
+                return
             else:
-                # si on a plusieurs demandes maximales, on relance l'algo sur chaque demande
+                # si on a plusieurs demandes maximales, on relance l'algo sur chaque demande en cliquant dessus avant
                 for i in range(n):
-                    if demandes_sur_cette_ligne[i] != 0 and tableau.get(i,
-                                                                        indice_ligne_en_cours) == 0:  # todo @andre j'ai essayé ca
+                    if demandes_sur_cette_ligne[i] != 0 \
+                            and tableau.get(i, indice_ligne_en_cours) == 0:  # todo @andre j'ai essayé ca
                         tableau_duplique = TABLEAU(n, tableau.copy_tab())
                         tableau_duplique.set(i, indice_ligne_en_cours)
                         algo(tableau_duplique, indice_ligne_en_cours, nom + nom[-2:], nombre_de_resolus,
@@ -133,7 +144,8 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
                 # print("NON RESOLVABLE 1")
                 return
             else:
-                # print("RESOLVABLE")
+                print("RESOLVAAaaaaaaaaaaaaaaaAAAAABLE")
+                # tableau.print_tab()
                 SOLUTIONS_TROUVEES.append(tableau)
                 nombre_de_resolus += 1
                 return
@@ -146,16 +158,17 @@ def algo(tableau, indice_ligne_en_cours, nom, nombre_de_resolus, dernier_endroit
 
 # ici on va lancer l'algo sur les x possibilités générées par generate_sol_init()
 solutions_init = generate_sol_init(n)
-start =time.time()
+start = time.time()
 
 for solution in solutions_init:
-    # solution = [0, 1, 1, 1]
+    solution = [1, 0, 0, 0, 0, 1]
     first_tableau = TABLEAU(n)
     for x in range(n):
         first_tableau.set(x, 0, solution[x])
 
     # on lance l'algo sur la solution
     algo(first_tableau, 1, "A1", 0, None)
+    break
 # break
 
 # first_tableau = TABLEAU(n)
@@ -175,7 +188,7 @@ for solution in solutions_init:
 # first_tableau.print_tab()
 # print(first_tableau.compter_demandes_pour_ligne(4))
 
-end =time.time()
+end = time.time()
 
 # elimination des doublons
 SOLUTIONS_UNIQUES = []
@@ -194,4 +207,4 @@ for sol in SOLUTIONS_UNIQUES:
     print(sol[1:n + 1, 1:n + 1])
 
 print(len(SOLUTIONS_UNIQUES), "solutions")
-print("temps de calcul :",end-start)
+print("temps de calcul :", end - start)
